@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { 
   View, 
   Text, 
@@ -17,36 +17,40 @@ export const HomeScreen = () => {
   const [tasks, setTasks] = useState(mockTasks);
   const [filter, setFilter] = useState('Todas');
 
-  const filteredTasks = tasks.filter(task => {
-    if (filter === 'Pendientes') return !task.completed;
-    if (filter === 'Completadas') return task.completed;
-    return true;
-  });
+  const filteredTasks = useMemo(() => {
+    return tasks.filter(task => {
+      if (filter === 'Pendientes') return !task.completed;
+      if (filter === 'Completadas') return task.completed;
+      return true;
+    });
+  }, [tasks, filter]);
 
-  const pendingTasksCount = tasks.filter(task => !task.completed).length;
+  const pendingTasksCount = useMemo(() => {
+    return tasks.filter(task => !task.completed).length;
+  }, [tasks]);
 
-  const toggleTask = (taskId: string) => {
-    setTasks(tasks.map(task => 
+  const toggleTask = useCallback((taskId: string) => {
+    setTasks(prevTasks => prevTasks.map(task => 
       task.id === taskId ? { ...task, completed: !task.completed } : task
     ));
-  };
+  }, []);
 
-  const handleAddTask = () => {
+  const handleAddTask = useCallback(() => {
     console.log('Agregar nueva tarea...');
     navigation.navigate('TaskForm', {
       isEditing: false
     });
-  };
+  }, [navigation]);
 
 
 
 
-  const renderTask = ({ item }: { item: Task }) => (
+  const renderTask = useCallback(({ item }: { item: Task }) => (
     <TaskItem 
       task={item} 
-      onToggle={() => toggleTask(item.id)} 
+      onToggle={toggleTask} 
     />
-  );
+  ), [toggleTask]);
 
   return (
     <SafeAreaView style={Styles.containerGray}>

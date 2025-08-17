@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -10,16 +10,16 @@ interface TaskItemProps {
   task: Task;
   onToggle: (id: string) => void;
 }
-export const TaskItem = ({ task, onToggle }: TaskItemProps) => {
+export const TaskItem = React.memo(({ task, onToggle }: TaskItemProps) => {
   const navigation = useNavigation<any>();
   
-  const handleEdit = () => {
+  const handleEdit = useCallback(() => {
     console.log('Editar tarea:', task.id);
     navigation.navigate('TaskForm', {
       task: task,
       isEditing: true
     });
-  };
+  }, [navigation, task]);
 
   return (
     <View style={Styles.card}>
@@ -52,4 +52,4 @@ export const TaskItem = ({ task, onToggle }: TaskItemProps) => {
       </View>
     </View>
   );
-};
+});
